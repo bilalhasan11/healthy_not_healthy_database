@@ -5,9 +5,9 @@ from datetime import datetime
 
 # Database configuration (replace with your RDS details)
 DB_CONFIG = {
-    "dbname": "healthdb",
-    "user": "admin",
-    "password": "your_password",
+    "dbname": "database-1",
+    "user": "postgres",
+    "password": "Namal12345",
     "host": "database-1.cp44esw4ubtb.eu-north-1.rds.amazonaws.com",
     "port": "5432"
 }
