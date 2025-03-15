@@ -2,8 +2,9 @@
 import psycopg2
 from psycopg2 import pool
 from datetime import datetime
+import os
 
-# Database configuration (replace with your RDS details)
+# Database configuration from environment variables
 DB_CONFIG = {
     "dbname": "postgres",
     "user": "postgres",
@@ -12,7 +13,7 @@ DB_CONFIG = {
     "port": "5432"
 }
 
-# Connection pool for efficiency
+# Connection pool
 db_pool = psycopg2.pool.SimpleConnectionPool(1, 10, **DB_CONFIG)
 
 def init_db():
@@ -27,6 +28,8 @@ def init_db():
                           result TEXT, 
                           audio BYTEA)''')
             conn.commit()
+    except Exception as e:
+        print(f"Error initializing database: {e}")
     finally:
         db_pool.putconn(conn)
 
@@ -39,6 +42,8 @@ def save_prediction(audio_name, result, audio_data):
             c.execute("INSERT INTO predictions (timestamp, audio_name, result, audio) VALUES (%s, %s, %s, %s)",
                       (timestamp, audio_name, result, psycopg2.Binary(audio_data)))
             conn.commit()
+    except Exception as e:
+        print(f"Error saving prediction: {e}")
     finally:
         db_pool.putconn(conn)
 
@@ -50,5 +55,8 @@ def get_history():
             c.execute("SELECT timestamp, audio_name, result FROM predictions ORDER BY timestamp DESC")
             rows = c.fetchall()
             return [{"timestamp": row[0], "audio_name": row[1], "result": row[2]} for row in rows]
+    except Exception as e:
+        print(f"Error fetching history: {e}")
+        return []
     finally:
         db_pool.putconn(conn)
