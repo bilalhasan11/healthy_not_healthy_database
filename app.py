@@ -23,7 +23,7 @@ def predict():
         possible_results = ["healthy", "not healthy", "try again"]
         result = random.choice(possible_results)
 
-        # Save to database using the separate function
+        # Save to database
         save_prediction(audio_name, result, audio_data)
 
         return jsonify({"result": result})
@@ -33,7 +33,7 @@ def predict():
 @app.route('/history', methods=['GET'])
 def history():
     try:
-        # Fetch history using the separate function
+        # Fetch history
         history = get_history()
         return jsonify({"history": history})
     except Exception as e:
