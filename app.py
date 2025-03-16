@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import random
-from database import init_db, save_prediction, get_history, register_user, authenticate_user
+from database import init_db, save_prediction, get_history, register_user, authenticate_user, get_user_profile, update_user_profile
 
 app = Flask(__name__)
 CORS(app)
@@ -16,7 +16,18 @@ def signup():
 def login():
     data = request.json
     return authenticate_user(data['username'], data['password'])
+@app.route('/profile', methods=['GET'])
+def profile():
+    user_id = request.args.get('user_id')
+    return jsonify(get_user_profile(user_id))
 
+@app.route('/profile/update', methods=['POST'])
+def update_profile():
+    data = request.json
+    user_id = data['user_id']
+    return jsonify(update_user_profile(
+        user_id, data['fullname'], data['country'], data['city'], data['gender'], data['phone_number']
+    ))
 @app.route('/predict', methods=['POST'])
 def predict():
     if 'audio' not in request.files or 'user_id' not in request.form:
