@@ -41,3 +41,28 @@ def authenticate_user(username, password):
             return {"user_id": user[0]} if user else {"error": "Invalid credentials"}
     finally:
         db_pool.putconn(conn)
+
+def save_prediction(user_id, audio_name, result, audio_data):
+    """Saves the prediction along with user_id and audio file"""
+    conn = db_pool.getconn()
+    try:
+        with conn.cursor() as c:
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            c.execute(
+                "INSERT INTO predictions (user_id, timestamp, audio_name, result, audio) VALUES (%s, %s, %s, %s, %s)",
+                (user_id, timestamp, audio_name, result, psycopg2.Binary(audio_data))
+            )
+            conn.commit()
+    finally:
+        db_pool.putconn(conn)
+
+def get_history(user_id):
+    """Retrieves the prediction history for a given user"""
+    conn = db_pool.getconn()
+    try:
+        with conn.cursor() as c:
+            c.execute("SELECT timestamp, audio_name, result FROM predictions WHERE user_id = %s ORDER BY timestamp DESC", (user_id,))
+            history = [{"timestamp": row[0], "audio_name": row[1], "result": row[2]} for row in c.fetchall()]
+        return history
+    finally:
+        db_pool.putconn(conn)
