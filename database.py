@@ -66,3 +66,37 @@ def get_history(user_id):
         return history
     finally:
         db_pool.putconn(conn)
+def get_user_profile(user_id):
+    """Fetches user profile details."""
+    conn = db_pool.getconn()
+    try:
+        with conn.cursor() as c:
+            c.execute("SELECT username, fullname, country, city, gender, phone_number FROM users WHERE id = %s", (user_id,))
+            user = c.fetchone()
+            if user:
+                return {
+                    "username": user[0],
+                    "fullname": user[1],
+                    "country": user[2],
+                    "city": user[3],
+                    "gender": user[4],
+                    "phone_number": user[5]
+                }
+            return {"error": "User not found"}
+    finally:
+        db_pool.putconn(conn)
+
+def update_user_profile(user_id, fullname, country, city, gender, phone_number):
+    """Updates user profile details except username."""
+    conn = db_pool.getconn()
+    try:
+        with conn.cursor() as c:
+            c.execute("""
+                UPDATE users 
+                SET fullname = %s, country = %s, city = %s, gender = %s, phone_number = %s 
+                WHERE id = %s
+            """, (fullname, country, city, gender, phone_number, user_id))
+            conn.commit()
+        return {"message": "Profile updated successfully"}
+    finally:
+        db_pool.putconn(conn)
