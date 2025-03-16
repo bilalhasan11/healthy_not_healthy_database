@@ -1,44 +1,38 @@
-# app.py
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import random
-import os
-from database import init_db, save_prediction, get_history  # Import database functions
+from database import init_db, save_prediction, get_history, register_user, authenticate_user
 
 app = Flask(__name__)
 CORS(app)
-
-# Initialize the database on startup
 init_db()
+
+@app.route('/signup', methods=['POST'])
+def signup():
+    data = request.json
+    return register_user(data['username'], data['password'])
+
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.json
+    return authenticate_user(data['username'], data['password'])
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    try:
-        if 'audio' not in request.files:
-            return jsonify({"error": "No audio file provided"}), 400
-        
-        audio_file = request.files['audio']
-        audio_name = audio_file.filename
-        audio_data = audio_file.read()  # Read audio file as binary
-        possible_results = ["healthy", "not healthy", "try again"]
-        result = random.choice(possible_results)
+    if 'audio' not in request.files or 'user_id' not in request.form:
+        return jsonify({"error": "Missing data"}), 400
+    
+    user_id = request.form['user_id']
+    audio_file = request.files['audio']
+    result = random.choice(["healthy", "not healthy", "try again"])
 
-        # Save to database
-        save_prediction(audio_name, result, audio_data)
-
-        return jsonify({"result": result})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    save_prediction(user_id, audio_file.filename, result, audio_file.read())
+    return jsonify({"result": result})
 
 @app.route('/history', methods=['GET'])
 def history():
-    try:
-        # Fetch history
-        history = get_history()
-        return jsonify({"history": history})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    user_id = request.args.get('user_id')
+    return jsonify({"history": get_history(user_id)})
 
 if __name__ == '__main__':
-    port = int(os.getenv("PORT", 5010))
-    app.run(debug=True, host='0.0.0.0', port=port)
+    app.run(debug=True, host='0.0.0.0', port=5010)
