@@ -100,3 +100,44 @@ def update_user_profile(user_id, fullname, country, city, gender, phone_number):
         return {"message": "Profile updated successfully"}
     finally:
         db_pool.putconn(conn)
+def get_farm_details_from_db(user_id):
+    """ Fetch farm details from the database """
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT fullname, country, city, zip, hives FROM farm WHERE user_id = %s", (user_id,))
+    farm = cursor.fetchone()
+    db.close()
+
+    if farm:
+        return {
+            "fullname": farm[0],
+            "country": farm[1],
+            "city": farm[2],
+            "zip": farm[3],
+            "hives": farm[4]
+        }
+    return None
+
+def update_farm_details_in_db(user_id, fullname, country, city, zip_code):
+    """ Insert or update farm details in the database """
+    db = get_db()
+    cursor = db.cursor()
+    
+    cursor.execute("SELECT * FROM farm WHERE user_id = %s", (user_id,))
+    existing_farm = cursor.fetchone()
+
+    if existing_farm:
+        cursor.execute("""
+            UPDATE farm 
+            SET fullname = %s, country = %s, city = %s, zip = %s 
+            WHERE user_id = %s
+        """, (fullname, country, city, zip_code, user_id))
+    else:
+        cursor.execute("""
+            INSERT INTO farm (user_id, fullname, country, city, zip) 
+            VALUES (%s, %s, %s, %s, %s)
+        """, (user_id, fullname, country, city, zip_code))
+
+    db.commit()
+    db.close()
+    return "Farm details updated successfully!"
