@@ -36,7 +36,7 @@ def authenticate_user(email, password):
     conn = db_pool.getconn()
     try:
         with conn.cursor() as c:
-            c.execute("SELECT id FROM users WHERE email = %s AND password = %s", (username, password))
+            c.execute("SELECT id FROM users WHERE email = %s AND password = %s", (email, password))
             user = c.fetchone()
             return {"user_id": user[0]} if user else {"error": "Invalid credentials"}
     finally:
