@@ -123,7 +123,7 @@ def update_farm_details_in_db(user_id, fullname, country, city, zip_code):
     db = get_db()
     cursor = db.cursor()
     
-    cursor.execute("SELECT * FROM farm WHERE user_id = %s", (user_id,))
+    cursor.execute("SELECT * FROM farm WHERE id = %s", (user_id,))
     existing_farm = cursor.fetchone()
 
     if existing_farm:
