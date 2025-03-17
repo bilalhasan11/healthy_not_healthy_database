@@ -16,27 +16,27 @@ def init_db():
     conn = db_pool.getconn()
     try:
         with conn.cursor() as c:
-            c.execute("CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, username TEXT UNIQUE, password TEXT)")
+            c.execute("CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, email TEXT UNIQUE, password TEXT)")
             c.execute("CREATE TABLE IF NOT EXISTS predictions (id SERIAL PRIMARY KEY, user_id INT, timestamp TEXT, audio_name TEXT, result TEXT, audio BYTEA)")
             conn.commit()
     finally:
         db_pool.putconn(conn)
 
-def register_user(username, password):
+def register_user(email, password):
     conn = db_pool.getconn()
     try:
         with conn.cursor() as c:
-            c.execute("INSERT INTO users (username, password) VALUES (%s, %s)", (username, password))
+            c.execute("INSERT INTO users (email, password) VALUES (%s, %s)", (email, password))
             conn.commit()
         return "Signup successful"
     finally:
         db_pool.putconn(conn)
 
-def authenticate_user(username, password):
+def authenticate_user(email, password):
     conn = db_pool.getconn()
     try:
         with conn.cursor() as c:
-            c.execute("SELECT id FROM users WHERE username = %s AND password = %s", (username, password))
+            c.execute("SELECT id FROM users WHERE email = %s AND password = %s", (username, password))
             user = c.fetchone()
             return {"user_id": user[0]} if user else {"error": "Invalid credentials"}
     finally:
@@ -71,11 +71,11 @@ def get_user_profile(user_id):
     conn = db_pool.getconn()
     try:
         with conn.cursor() as c:
-            c.execute("SELECT username, fullname, country, city, gender, phone_number FROM users WHERE id = %s", (user_id,))
+            c.execute("SELECT email, fullname, country, city, gender, phone_number FROM users WHERE id = %s", (user_id,))
             user = c.fetchone()
             if user:
                 return {
-                    "username": user[0],
+                    "email": user[0],
                     "fullname": user[1],
                     "country": user[2],
                     "city": user[3],
