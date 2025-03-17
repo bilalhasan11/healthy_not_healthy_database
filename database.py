@@ -26,7 +26,7 @@ def register_user(fullname,email, password):
     conn = db_pool.getconn()
     try:
         with conn.cursor() as c:
-            c.execute("INSERT INTO users (fullname,email, password) VALUES (%s, %s)", (fullname,email, password))
+            c.execute("INSERT INTO users (fullname,email, password) VALUES (%s, %s, %s)", (fullname,email, password))
             conn.commit()
         return "Signup successful"
     finally:
