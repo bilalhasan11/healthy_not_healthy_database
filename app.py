@@ -10,7 +10,7 @@ init_db()
 @app.route('/signup', methods=['POST'])
 def signup():
     data = request.json
-    return register_user(data['fullname'],data['email'], data['password'])
+    return register_user(data['fullName'],data['email'], data['password'])
 
 @app.route('/login', methods=['POST'])
 def login():
