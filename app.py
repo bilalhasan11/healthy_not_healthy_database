@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import random
-from database import init_db, save_prediction, get_history, register_user, authenticate_user, get_user_profile, update_user_profile
+from database import init_db, save_prediction, get_history, register_user, authenticate_user, get_user_profile, update_user_profile,get_farm_details_from_db,update_farm_details_in_db
 
 app = Flask(__name__)
 CORS(app)
@@ -57,20 +57,12 @@ def get_farm_details():
     else:
         return jsonify({"error": "Farm details not found"}), 404
 
-
 @app.route('/farm/update', methods=['POST'])
 def update_farm():
     data = request.json
-    user_id = data.get("user_id")
-    fullname = data.get("fullname")
-    country = data.get("country")
-    city = data.get("city")
-    zip_code = data.get("zip")
-
-    if not user_id or not fullname or not country or not city or not zip_code:
-        return jsonify({"error": "All fields are required"}), 400
-
-    message = update_farm_details_in_db(user_id, fullname, country, city, zip_code)
+    return jsonify(update_farm_details_in_db(
+        data['user_id'], data['fullname'], data['country'], data['city'], data['zip']
+    ))
     
     return jsonify({"message": message})
 if __name__ == '__main__':
