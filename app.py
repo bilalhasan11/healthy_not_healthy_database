@@ -44,6 +44,34 @@ def predict():
 def history():
     user_id = request.args.get('user_id')
     return jsonify({"history": get_history(user_id)})
+@app.route('/farm', methods=['GET'])
+def get_farm_details():
+    user_id = request.args.get('user_id')
+    if not user_id:
+        return jsonify({"error": "User ID is required"}), 400
 
+    farm = get_farm_details_from_db(user_id)
+
+    if farm:
+        return jsonify(farm)
+    else:
+        return jsonify({"error": "Farm details not found"}), 404
+
+
+@app.route('/farm/update', methods=['POST'])
+def update_farm():
+    data = request.json
+    user_id = data.get("user_id")
+    fullname = data.get("fullname")
+    country = data.get("country")
+    city = data.get("city")
+    zip_code = data.get("zip")
+
+    if not user_id or not fullname or not country or not city or not zip_code:
+        return jsonify({"error": "All fields are required"}), 400
+
+    message = update_farm_details_in_db(user_id, fullname, country, city, zip_code)
+    
+    return jsonify({"message": message})
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5010)
