@@ -22,11 +22,11 @@ def init_db():
     finally:
         db_pool.putconn(conn)
 
-def register_user(email, password):
+def register_user(fullname,email, password):
     conn = db_pool.getconn()
     try:
         with conn.cursor() as c:
-            c.execute("INSERT INTO users (email, password) VALUES (%s, %s)", (email, password))
+            c.execute("INSERT INTO users (fullname,email, password) VALUES (%s, %s)", (fullname,email, password))
             conn.commit()
         return "Signup successful"
     finally:
