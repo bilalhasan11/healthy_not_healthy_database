@@ -128,3 +128,35 @@ def update_farm_details_in_db(user_id, fullname, country, city, zip_code):
         return {"message": "Farm details updated successfully"}
     finally:
         db_pool.putconn(conn)
+def get_hives_from_db(user_id):
+    conn = db_pool.getconn()
+    try:
+        with conn.cursor() as c:
+            # Get farm ID for the user
+            c.execute("SELECT farm_id FROM farm WHERE user_id = %s", (user_id,))
+            farm = c.fetchone()
+
+            if not farm:
+                return None  # No farm registered for this user
+
+            farm_id = farm[0]
+
+            # Get all hives for the farm
+            c.execute("""
+                SELECT hive_number, bee_type, number_of_frames, creation_date, health_status, notes 
+                FROM hive WHERE farm_id = %s ORDER BY hive_number ASC
+            """, (farm_id,))
+            
+            return [
+                {
+                    "hive_number": row[0],
+                    "bee_type": row[1],
+                    "number_of_frames": row[2],
+                    "creation_date": row[3].strftime("%Y-%m-%d"),
+                    "health_status": row[4],
+                    "notes": row[5]
+                } for row in c.fetchall()
+            ]
+    finally:
+        db_pool.putconn(conn)
+
