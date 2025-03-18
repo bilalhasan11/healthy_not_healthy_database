@@ -64,6 +64,15 @@ def update_farm():
     return jsonify(update_farm_details_in_db(
         data['user_id'], data['fullname'], data['country'], data['city'], data['zip']
     ))
+@app.route('/hives', methods=['GET'])
+def get_hives():
+    user_id = request.args.get('user_id')
+
+    if not user_id:
+        return jsonify({"error": "User ID is required"}), 400
+
+    hives = get_hives_from_db(user_id)
+    return jsonify({"hives": hives}) if hives else jsonify({"error": "No farm registered"}), 404
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5010)
