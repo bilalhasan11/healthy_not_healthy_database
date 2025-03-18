@@ -142,7 +142,7 @@ def get_hives_from_db(farm_id):
     conn = db_pool.getconn()
     try:
         with conn.cursor() as c:
-            c.execute("SELECT hive_id, hive_number FROM hive WHERE farm_id = %s ORDER BY hive_number", (farm_id,))
+            c.execute("SELECT hive_id, hive_number FROM Hive WHERE farm_id = %s ORDER BY hive_number", (farm_id,))
             return [{"hive_id": row[0], "hive_number": row[1]} for row in c.fetchall()]
     finally:
         db_pool.putconn(conn)
