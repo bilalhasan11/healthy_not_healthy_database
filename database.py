@@ -128,7 +128,7 @@ def update_farm_details_in_db(user_id, fullname, country, city, zip_code):
         return {"message": "Farm details updated successfully"}
     finally:
         db_pool.putconn(conn)
-def get_farm_details_from_db(user_id):
+def get_farm_detailss_from_db(user_id):
     conn = db_pool.getconn()
     try:
         with conn.cursor() as c:
