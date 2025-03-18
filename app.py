@@ -3,7 +3,7 @@ from flask_cors import CORS
 import random
 from database import (
     init_db, save_prediction, get_history, register_user, authenticate_user,
-    get_user_profile, update_user_profile, get_farm_details_from_db, update_farm_details_in_db
+    get_user_profile, update_user_profile, get_farm_details_from_db, update_farm_details_in_db,get_farm_detailss_from_db,get_hives_from_db
 )
 
 app = Flask(__name__)
