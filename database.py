@@ -153,7 +153,7 @@ def get_hives_from_db(farm_id):
     finally:
         db_pool.putconn(conn)
 
-def get_hive_detail_from_db(hive_id)
+def get_hive_detail_from_db(hive_id):
     conn = db_pool.getconn()
     try:
         with conn.cursor() as c:
