@@ -84,12 +84,12 @@ def get_hives():
     
 @app.route('/hive_detail', methods=['GET'])
 def get_hives_detail():
-    farm_id = request.args.get('hive_id')
-    if not farm_id:
+    hive_id = request.args.get('hive_id')
+    if not hive_id:
         return jsonify({"error": "Hive Id is required"}), 400
 
-    hives = get_hive_detail_from_db(hive_id)
-    return jsonify(hives)
+    hivess = get_hive_detail_from_db(hive_id)
+    return jsonify(hivess)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5010)
