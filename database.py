@@ -152,3 +152,12 @@ def get_hives_from_db(farm_id):
             return [{"hive_id": row[0], "hive_number": row[1]} for row in c.fetchall()]
     finally:
         db_pool.putconn(conn)
+
+def get_hive_detail_from_db(hive_id)
+    conn = db_pool.getconn()
+    try:
+        with conn.cursor() as c:
+            c.execute("SELECT hive_number,bee_type,number_of_frames,creation_date,health_status,notes FROM Hive WHERE hive_id = %s", (hive_id,))
+            return [{"hive_number": row[0], "bee_type": row[1], "number_of_frames": row[2], "creation_date": row[3], "health_status": row[4],"notes": row[5]} for row in c.fetchall()]
+    finally:
+        db_pool.putconn(conn)
