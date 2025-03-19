@@ -157,7 +157,20 @@ def get_hive_detail_from_db(hive_id):
     conn = db_pool.getconn()
     try:
         with conn.cursor() as c:
-            c.execute("SELECT hive_number,bee_type,number_of_frames,creation_date,health_status,notes FROM Hive WHERE hive_id = %s", (hive_id,))
-            return [{"hive_number": row[0], "bee_type": row[1], "number_of_frames": row[2], "creation_date": row[3], "health_status": row[4],"notes": row[5]} for row in c.fetchall()]
+            c.execute(
+                "SELECT hive_number, bee_type, number_of_frames, creation_date, health_status, notes FROM Hive WHERE hive_id = %s",
+                (hive_id,)
+            )
+            row = c.fetchone()  # Use fetchone() for a single row
+            if row:
+                return {
+                    "hive_number": row[0],
+                    "bee_type": row[1],
+                    "number_of_frames": row[2],
+                    "creation_date": row[3],
+                    "health_status": row[4],
+                    "notes": row[5]
+                }
+            return {"error": "Hive not found"}  # Return error if no hive exists
     finally:
         db_pool.putconn(conn)
