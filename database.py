@@ -96,11 +96,17 @@ def get_farm_details_from_db(user_id):
     conn = db_pool.getconn()
     try:
         with conn.cursor() as c:
-            c.execute("SELECT fullname, country, city, zip, hives FROM farm WHERE user_id = %s", (user_id,))
+            # Updated query to include farm_id
+            c.execute("SELECT farm_id, fullname, country, city, zip, hives FROM farm WHERE user_id = %s", (user_id,))
             farm = c.fetchone()
+            # Include farm_id in the returned JSON
             return {
-                "fullname": farm[0], "country": farm[1], "city": farm[2], 
-                "zip": farm[3], "hives": farm[4]
+                "farm_id": farm[0],    # Added farm_id
+                "fullname": farm[1],   # Shifted indices due to farm_id being first
+                "country": farm[2],
+                "city": farm[3],
+                "zip": farm[4],
+                "hives": farm[5]
             } if farm else None
     finally:
         db_pool.putconn(conn)
