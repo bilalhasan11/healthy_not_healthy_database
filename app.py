@@ -57,7 +57,7 @@ def predict():
     file_id = upload_to_drive(audio_file)
 
     # Save metadata in the database
-    database.save_prediction(user_id, audio_file.filename, result, file_id)
+    save_prediction(user_id, audio_file.filename, result, file_id)
 
     return jsonify({"result": result, "file_id": file_id})
 
