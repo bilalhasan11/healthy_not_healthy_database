@@ -15,13 +15,13 @@ init_db()
 
 # Google Drive API Setup
 SCOPES = ['https://www.googleapis.com/auth/drive.file']
-SERVICE_ACCOUNT_FILE = 'credentials.json'  # Ensure this file is in your project directory
 FOLDER_ID = '1rit57aSKEnPquEDv0ysG_3t9VFd1mhqr'  # Replace with your actual Google Drive folder ID
 
-credentials = service_account.Credentials.from_service_account_file(
-    SERVICE_ACCOUNT_FILE, scopes=SCOPES
-)
-drive_service = build('drive', 'v3', credentials=credentials)
+service_account_info = json.loads(os.getenv("GOOGLE_CREDENTIALS"))
+credentials = service_account.Credentials.from_service_account_info(service_account_info)
+
+# Initialize Google Drive API
+drive_service = build("drive", "v3", credentials=credentials)
 
 def upload_to_drive(audio_file):
     """Uploads an audio file to Google Drive and returns the file ID."""
