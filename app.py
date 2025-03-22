@@ -48,8 +48,13 @@ def predict():
     audio_file = request.files['audio']
     result = random.choice(["healthy", "not healthy", "try again"])
 
-    save_prediction(user_id, audio_file.filename, result, audio_file.read())
-    return jsonify({"result": result})
+    # Upload the file to Google Drive
+    file_id = upload_to_drive(audio_file)
+
+    # Save metadata in the database
+    database.save_prediction(user_id, audio_file.filename, result, file_id)
+
+    return jsonify({"result": result, "file_id": file_id})
 
 @app.route('/signup', methods=['POST'])
 def signup():
