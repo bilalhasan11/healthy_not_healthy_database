@@ -43,18 +43,24 @@ def authenticate_user(email, password):
     finally:
         db_pool.putconn(conn)
 
-def save_prediction(user_id, audio_name, result, audio_data):
+import psycopg2
+from datetime import datetime
+from db_config import db_pool  # Ensure you have a database connection pool set up
+
+def save_prediction(user_id, audio_name, result, file_id):
+    """Saves the prediction data (excluding the actual audio) in the database."""
     conn = db_pool.getconn()
     try:
         with conn.cursor() as c:
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             c.execute(
-                "INSERT INTO predictions (user_id, timestamp, audio_name, result, audio) VALUES (%s, %s, %s, %s, %s)",
-                (user_id, timestamp, audio_name, result, psycopg2.Binary(audio_data))
+                "INSERT INTO predictions (user_id, timestamp, audio_name, result, file_id) VALUES (%s, %s, %s, %s, %s)",
+                (user_id, timestamp, audio_name, result, file_id)
             )
             conn.commit()
     finally:
         db_pool.putconn(conn)
+
 
 def get_history(user_id):
     conn = db_pool.getconn()
