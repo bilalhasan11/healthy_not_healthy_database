@@ -24,16 +24,19 @@ credentials = service_account.Credentials.from_service_account_file(
 drive_service = build('drive', 'v3', credentials=credentials)
 
 def upload_to_drive(audio_file):
-    """Uploads a file to Google Drive and returns the file ID."""
+    """Uploads an audio file to Google Drive and returns the file ID."""
     file_metadata = {
         'name': audio_file.filename,
         'parents': [FOLDER_ID]
     }
+    
+    # Convert the uploaded file into a MediaIoBaseUpload object
     media = MediaIoBaseUpload(audio_file, mimetype=audio_file.content_type, resumable=True)
     
+    # Corrected: Pass `media` directly as `media_body`
     file = drive_service.files().create(
         body=file_metadata,
-        media_body=media['media_body'],
+        media_body=media,  # ✅ No need for indexing
         fields='id'
     ).execute()
     
