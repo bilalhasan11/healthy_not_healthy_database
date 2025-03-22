@@ -44,8 +44,6 @@ def authenticate_user(email, password):
         db_pool.putconn(conn)
 
 import psycopg2
-from datetime import datetime
-from db_config import db_pool  # Ensure you have a database connection pool set up
 
 def save_prediction(user_id, audio_name, result, file_id):
     """Saves the prediction data (excluding the actual audio) in the database."""
