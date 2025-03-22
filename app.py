@@ -1,6 +1,8 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import random
+from googleapiclient.discovery import build
+from google.oauth2 import service_account
 from database import (
     init_db, save_prediction, get_history, register_user, authenticate_user,
     get_user_profile, update_user_profile, get_farm_details_from_db, update_farm_details_in_db,get_farm_detailss_from_db,get_hives_from_db,get_hive_detail_from_db
@@ -10,6 +12,52 @@ app = Flask(__name__)
 CORS(app)
 init_db()
 
+# Google Drive API Setup
+SCOPES = ['https://www.googleapis.com/auth/drive.file']
+SERVICE_ACCOUNT_FILE = 'credentials.json'  # Ensure this file is in your project directory
+FOLDER_ID = '1rit57aSKEnPquEDv0ysG_3t9VFd1mhqr'  # Replace with your actual Google Drive folder ID
+
+credentials = service_account.Credentials.from_service_account_file(
+    SERVICE_ACCOUNT_FILE, scopes=SCOPES
+)
+drive_service = build('drive', 'v3', credentials=credentials)
+
+def upload_to_drive(audio_file):
+    """Uploads a file to Google Drive and returns the file ID."""
+    file_metadata = {
+        'name': audio_file.filename,
+        'parents': [FOLDER_ID]
+    }
+    
+    media = {'media_body': audio_file, 'mimetype': audio_file.content_type}
+    
+    file = drive_service.files().create(
+        body=file_metadata,
+        media_body=media['media_body'],
+        fields='id'
+    ).execute()
+    
+    return file.get('id')
+
+@app.route('/predict', methods=['POST'])
+def predict():
+    if 'audio' not in request.files or 'user_id' not in request.form:
+        return jsonify({"error": "Missing data"}), 400
+
+    user_id = request.form['user_id']
+    audio_file = request.files['audio']
+    result = random.choice(["healthy", "not healthy", "try again"])
+
+    # Upload the file to Google Drive
+    file_id = upload_to_drive(audio_file)
+
+    # Save metadata in the database
+    database.save_prediction(user_id, audio_file.filename, result, file_id)
+
+    return jsonify({"result": result, "file_id": file_id})
+
+if __name__ == '__main__':
+    app.run(debug=True)
 @app.route('/signup', methods=['POST'])
 def signup():
     data = request.json
@@ -31,18 +79,6 @@ def update_profile():
     return jsonify(update_user_profile(
         data['user_id'], data['fullname'], data['country'], data['city'], data['gender'], data['phone_number']
     ))
-
-@app.route('/predict', methods=['POST'])
-def predict():
-    if 'audio' not in request.files or 'user_id' not in request.form:
-        return jsonify({"error": "Missing data"}), 400
-
-    user_id = request.form['user_id']
-    audio_file = request.files['audio']
-    result = random.choice(["healthy", "not healthy", "try again"])
-
-    save_prediction(user_id, audio_file.filename, result, audio_file.read())
-    return jsonify({"result": result})
 
 @app.route('/history', methods=['GET'])
 def history():
