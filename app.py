@@ -3,6 +3,7 @@ from flask_cors import CORS
 import random
 from googleapiclient.discovery import build
 from google.oauth2 import service_account
+from googleapiclient.http import MediaIoBaseUpload
 from database import (
     init_db, save_prediction, get_history, register_user, authenticate_user,
     get_user_profile, update_user_profile, get_farm_details_from_db, update_farm_details_in_db,get_farm_detailss_from_db,get_hives_from_db,get_hive_detail_from_db
@@ -28,8 +29,7 @@ def upload_to_drive(audio_file):
         'name': audio_file.filename,
         'parents': [FOLDER_ID]
     }
-    
-    media = {'media_body': audio_file, 'mimetype': audio_file.content_type}
+    media = MediaIoBaseUpload(audio_file, mimetype=audio_file.content_type, resumable=True)
     
     file = drive_service.files().create(
         body=file_metadata,
